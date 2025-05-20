@@ -8,8 +8,7 @@ An end-to-end Retrieval-Augmented Generation (RAG) system that enables natural l
 
 - ✅ Upload and parse scanned or digital PDFs with OCR fallback
 - ✅ Extract text and tables with PyMuPDF, Tesseract, and Camelot
-- ✅ Clean and chunk content using LangChain's       
-     RecursiveCharacterTextSplitter
+- ✅ Clean and chunk content using LangChain's RecursiveCharacterTextSplitter
 - ✅ Generate embeddings using OpenAI’s `text-embedding-3-small`
 - ✅ Store and retrieve chunks with Pinecone or ChromaDB
 - ✅ Run semantic search + prompt-augmented LLM answers
@@ -101,5 +100,6 @@ Flask
 Redis
 ```
 ## 🙌 Acknowledgments
-```This project was built to make city budgets more accessible, understandable, and transparent through the power of LLMs and open-source AI.
+```
+This project was built to make city budgets more accessible, understandable, and transparent through the power of LLMs and open-source AI.
 ```
