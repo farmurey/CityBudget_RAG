@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>City Budget Query Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #F3F8FF; /* Updated background color */
+        }
+
+        .header {
+            background: #002147; /* Updated header background color */
+            color: white;
+            padding: 2rem 0;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-logo {
+            height: 60px;
+            margin-right: 1rem;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            color: white;
+        }
+
+        .tabs {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: #002147; /* Updated text color */
+        }
+
+        .tab:hover {
+            background-color: #f8f9fa;
+        }
+
+        .tab.active {
+            border-bottom-color: #00CCCC; /* Updated active tab border color */
+            color: #002147; /* Updated active tab text color */
+        }
+
+        .content {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .status-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-message.info {
+            background-color: #e8f4fd;
+            color: #002147; /* Updated text color */
+            border: 1px solid #bfdbfe;
+        }
+
+        .status-message.success {
+            background-color: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .status-message.error {
+            background-color: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .question-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #002147; /* Updated label color */
+        }
+
+        .city-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            background-color: white;
+            color: #002147; /* Updated text color */
+        }
+
+        .query-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .query-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 1rem;
+            color: #002147; /* Updated text color */
+        }
+
+        .query-input:focus, .city-select:focus {
+            outline: none;
+            border-color: #00CCCC; /* Updated focus border color */
+            box-shadow: 0 0 0 3px rgba(0, 204, 204, 0.1);
+        }
+
+        .submit-button {
+            background: #002147; /* Updated button background color */
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-button:hover {
+            background: #001a38; /* Darker shade for hover state */
+        }
+
+        .submit-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .upload-panel {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 3rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area:hover {
+            border-color: #00CCCC; /* Updated border color on hover */
+            background-color: #f8faff;
+        }
+
+        .upload-area.dragging {
+            border-color: #00CCCC; /* Updated border color when dragging */
+            background-color: #f0f6ff;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #002147; /* Updated icon color */
+            margin-bottom: 1rem;
+        }
+
+        .upload-text {
+            color: #002147; /* Updated text color */
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-subtext {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-button {
+            background: #002147; /* Updated button background color */
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        .upload-button:hover {
+            background: #001a38; /* Darker shade for hover state */
+        }
+
+        .upload-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .example-questions {
+            margin-top: 2rem;
+        }
+
+        .example-questions h3 {
+            color: #002147; /* Updated heading color */
+            margin-bottom: 1rem;
+        }
+
+        .example-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .example-button {
+            background: #e8f0ff; /* Lighter background color */
+            border: 1px solid #d1dff0;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            color: #002147; /* Updated text color */
+        }
+
+        .example-button:hover {
+            background: #d6e4ff;
+            border-color: #c4d3f5;
+        }
+
+        .response-section {
+            margin-top: 2rem;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .response-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: #002147; /* Updated header color */
+        }
+
+        .response-content {
+            color: #374151;
+            line-height: 1.6;
+        }
+
+        .sources-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .sources-header {
+            font-weight: 600;
+            color: #002147; /* Updated header color */
+            margin-bottom: 0.75rem;
+        }
+
+        .source-item {
+            display: inline-block;
+            background: #e8f0ff; /* Lighter background color */
+            padding: 0.4rem 0.8rem;
+            border-radius: 16px;
+            margin: 0.25rem;
+            font-size: 0.85rem;
+            color: #002147; /* Updated text color */
+            border: 1px solid #d1dff0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .source-item:hover {
+            background: #d6e4ff;
+            border-color: #c4d3f5;
+        }
+
+        .confidence-score {
+            color: #6b7280;
+            font-size: 0.8rem;
+            margin-left: 0.25rem;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #002147; /* Updated text color */
+            padding: 1rem;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid #00CCCC; /* Updated spinner color */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: #002147; /* Updated text color */
+            font-size: 0.9rem;
+        }
+
+        /* Additional teal accents for decorative elements */
+        h2 {
+            color: #002147; /* Updated heading color */
+            border-bottom: 2px solid #00CCCC; /* Teal bottom border */
+            display: inline-block;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <img class="header-logo" src="/static/Hamlet_logo _white.svg" alt="Budget Query Logo" width="32" height="32">
+            <h1>City Budget Query Assistant</h1>
+        </div>
+        <p>Ask. Analyze. Act. Your AI partner for city financial data.</p>
+    </header>
+
+    <nav class="tabs">
+        <div class="tab active" data-tab="ask">Ask a Question</div>
+        <div class="tab" data-tab="upload">Upload Document</div>
+    </nav>
+
+    <div class="content">
+        <!-- Ask a Question Tab -->
+        <div class="tab-panel active" id="ask-panel">
+            <div id="document-status"></div>
+
+            <div class="question-panel">
+                <h2>Ask a Question</h2>
+                
+                <div class="form-group">
+                    <label for="city-select">Select City:</label>
+                    <select id="city-select" class="city-select">
+                        <option value="">-- Select a city --</option>
+                    </select>
+                </div>
+
+                <div class="query-container">
+                    <input 
+                        type="text" 
+                        id="query-input" 
+                        class="query-input" 
+                        placeholder="Ask a question about the city budget..."
+                        autocomplete="off"
+                    />
+                    <button id="submit-query" class="submit-button">Send</button>
+                </div>
+
+                <div class="example-questions">
+                    <h3>Example Questions:</h3>
+                    <div class="example-buttons">
+                        <button class="example-button" data-question="What is the total budget?">
+                            What is the total budget?
+                        </button>
+                        <button class="example-button" data-question="What is the police department budget?">
+                            Police budget?
+                        </button>
+                        <button class="example-button" data-question="How much is allocated for housing programs?">
+                            Housing programs?
+                        </button>
+                        <button class="example-button" data-question="What are the main revenue sources?">
+                            Revenue sources?
+                        </button>
+                        <button class="example-button" data-question="What is the transportation budget?">
+                            Transportation budget?
+                        </button>
+                    </div>
+                </div>
+
+                <div id="response-section" class="response-section" style="display: none;">
+                    <div class="response-header">
+                        <span>Answer:</span>
+                    </div>
+                    <div id="response-content" class="response-content"></div>
+                    <div id="sources-section" class="sources-section" style="display: none;">
+                        <div class="sources-header">Sources:</div>
+                        <div id="sources-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Document Tab -->
+        <div class="tab-panel" id="upload-panel">
+            <div class="upload-panel">
+                <h2>Upload City Budget Document</h2>
+                
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📄</div>
+                    <div class="upload-text">Click to upload or drag and drop</div>
+                    <div class="upload-subtext">PDF files up to 50MB</div>
+                    <input type="file" id="file-input" class="file-input" accept=".pdf" />
+                </div>
+
+                <button id="upload-button" class="upload-button" disabled>
+                    Upload Document
+                </button>
+
+                <div id="upload-status" style="margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>City Budget Query Asssistant © 2025</p>
+        <p>For demonstration purposes only. Data may not reflect actual budget figures.</p>
+    </footer>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = '';
+        
+        // State management
+        let loadedDocuments = [];
+        let selectedCity = '';
+        let isLoading = false;
+
+        // Tab switching
+        // Tab switching with form reset
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.dataset.tab;
+        
+            // Update tab active states
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+        
+            // Update panel visibility
+            document.querySelectorAll('.tab-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-panel`).classList.add('active');
+        
+            // If switching to upload tab, reset the form
+            if (tabName === 'upload') {
+                document.getElementById('file-input').value = '';
+                document.getElementById('upload-button').disabled = true;
+                showUploadStatus('', '');  // Clear any status messages
+            }
+        });
+    });
+
+        // Initialize the app
+        async function initialize() {
+            await loadDocuments();
+            setupEventListeners();
+        }
+
+        // Load available documents
+        async function loadDocuments() {
+            try {
+                const response = await fetch('/api/documents');
+                if (response.ok) {
+                    loadedDocuments = await response.json();
+                    updateDocumentStatus();
+                    updateCitySelect();
+                }
+            } catch (error) {
+                console.error('Error loading documents:', error);
+                showStatus('Error connecting to server', 'error');
+            }
+        }
+
+        // Update document status display
+        function updateDocumentStatus() {
+            const statusDiv = document.getElementById('document-status');
+            
+            if (loadedDocuments.length > 0) {
+                const doc = loadedDocuments[0];  // Only one document
+                const displayName = `${doc.city}_Budget_FY${doc.fiscalYear}.pdf`;
+                
+                statusDiv.innerHTML = `
+                    <div class="status-message info">
+                        <span>ℹ️</span>
+                        <span>Document loaded: <strong>${displayName}</strong>. You can now ask questions about its content.</span>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="status-message error">
+                        <span>⚠️</span>
+                        <span>No documents loaded. Please upload a city budget PDF first.</span>
+                    </div>
+                `;
+            }
+        }
+
+        // Update city select dropdown
+        function updateCitySelect() {
+            const citySelect = document.getElementById('city-select');
+            citySelect.innerHTML = '<option value="">-- Select a city --</option>';
+            
+            loadedDocuments.forEach(doc => {
+                const option = document.createElement('option');
+                option.value = doc.city;
+                option.textContent = `${doc.city} (FY ${doc.fiscalYear})`;
+                citySelect.appendChild(option);
+            });
+            
+            if (loadedDocuments.length === 1) {
+                citySelect.value = loadedDocuments[0].city;
+                selectedCity = loadedDocuments[0].city;
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // City select
+            document.getElementById('city-select').addEventListener('change', (e) => {
+                selectedCity = e.target.value;
+            });
+
+            // Query submission
+            document.getElementById('submit-query').addEventListener('click', submitQuery);
+            document.getElementById('query-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') submitQuery();
+            });
+
+            // Example questions
+            document.querySelectorAll('.example-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const question = button.dataset.question;
+                    document.getElementById('query-input').value = question;
+                    submitQuery();
+                });
+            });
+
+            // File upload
+            const uploadArea = document.getElementById('upload-area');
+            const fileInput = document.getElementById('file-input');
+            
+            uploadArea.addEventListener('click', () => fileInput.click());
+            
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('dragging');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('dragging');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('dragging');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    fileInput.files = files;
+                    handleFileSelect();
+                }
+            });
+            
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            // Upload button
+            document.getElementById('upload-button').addEventListener('click', uploadDocument);
+        }
+
+        // Submit query to the API
+        async function submitQuery() {
+            const query = document.getElementById('query-input').value.trim();
+            
+            if (!query) {
+                alert('Please enter a question');
+                return;
+            }
+            
+            if (!selectedCity && loadedDocuments.length > 0) {
+                alert('Please select a city');
+                return;
+            }
+            
+            if (loadedDocuments.length === 0) {
+                alert('Please upload a document first');
+                return;
+            }
+            
+            if (isLoading) return;
+            
+            isLoading = true;
+            document.getElementById('submit-query').disabled = true;
+            
+            // Show loading state
+            const responseSection = document.getElementById('response-section');
+            responseSection.style.display = 'block';
+            document.getElementById('response-content').innerHTML = `
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <span>Analyzing budget documents...</span>
+                </div>
+            `;
+            document.getElementById('sources-section').style.display = 'none';
+            
+            try {
+                const response = await fetch('/query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        question: query,
+                        use_cache: true,
+                        city_name: selectedCity
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Query failed: ${response.status} ${response.statusText} - ${errorText}`);
+                }
+                
+                const data = await response.json();
+                
+                displayResponse(data);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('response-content').innerHTML = `
+                    <div class="status-message error">
+                        <span>❌</span>
+                        <span>Error: Failed to get response. Please try again.</span>
+                    </div>
+                `;
+            } finally {
+                isLoading = false;
+                document.getElementById('submit-query').disabled = false;
+            }
+        }
+
+        // Display query response
+        function displayResponse(data) {
+            const responseContent = document.getElementById('response-content');
+            const sourcesSection = document.getElementById('sources-section');
+            const sourcesList = document.getElementById('sources-list');
+            
+            // Display answer
+            responseContent.innerHTML = formatAnswer(data.answer);
+            
+            // Display sources
+            if (data.sources && data.sources.length > 0) {
+                sourcesSection.style.display = 'block';
+                sourcesList.innerHTML = data.sources.map(source => `
+                    <span class="source-item" title="Click to view page ${source.page}">
+                        📄 Page ${source.page}
+                        <span class="confidence-score">(${Math.round(source.score * 100)}%)</span>
+                    </span>
+                `).join('');
+            } else {
+                sourcesSection.style.display = 'none';
+            }
+        }
+
+        // Format answer with highlighting
+        function formatAnswer(answer) {
+            // Highlight dollar amounts
+            answer = answer.replace(/\$[\d,]+(\.\d{2})?/g, '<strong>$&</strong>');
+            
+            // Convert line breaks to HTML
+            answer = answer.replace(/\n/g, '<br>');
+            
+            return answer;
+        }
+
+        // Handle file selection
+        function handleFileSelect() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                if (file.type !== 'application/pdf') {
+                    alert('Please select a PDF file');
+                    return;
+                }
+                
+                if (file.size > 50 * 1024 * 1024) { // 50MB limit
+                    alert('File size must be less than 50MB');
+                    return;
+                }
+                
+                document.getElementById('upload-button').disabled = false;
+                showUploadStatus(`Selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`, 'info');
+            }
+        }
+
+        // Upload document
+        async function uploadDocument() {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a file');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            document.getElementById('upload-button').disabled = true;
+            showUploadStatus('Uploading and processing document...', 'info');
+            
+            try {
+                loadedDocuments = [];
+                selectedCity = '';
+                const response = await fetch('/ingest', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+            // Check if response is ok first
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || `Upload failed: ${response.status} ${response.statusText}`);
+        }
+        
+        // Now parse the successful response
+        const data = await response.json();
+                
+                // Show extracted metadata
+                showUploadStatus(
+                    `Successfully uploaded! Detected: ${data.city_name} (FY ${data.fiscal_year}). Processed ${data.chunks_processed} chunks from ${data.pages_processed} pages.`,
+                    'success'
+                );
+                
+
+
+
+        
+        // Reload documents list
+        await loadDocuments();
+        
+        // Reset form
+        fileInput.value = '';
+        document.getElementById('upload-button').disabled = true;
+        
+        // Clear any previous responses
+        const responseSection = document.getElementById('response-section');
+        responseSection.style.display = 'none';
+
+        // Switch to Ask tab
+        setTimeout(() => {
+            document.querySelector('[data-tab="ask"]').click();
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        // Show the actual error message
+        showUploadStatus(`Error: ${error.message}`, 'error');
+        document.getElementById('upload-button').disabled = false;
+        
+        // Also check console for more details
+        console.error('Full error details:', error);
+    }
+}
+
+        // Show upload status
+        function showUploadStatus(message, type) {
+            const statusDiv = document.getElementById('upload-status');
+            statusDiv.innerHTML = `
+                <div class="status-message ${type}">
+                    <span>${type === 'info' ? 'ℹ️' : type === 'success' ? '✅' : '❌'}</span>
+                    <span>${message}</span>
+                </div>
+            `;
+        }
+
+        // Show general status
+        function showStatus(message, type) {
+            console.log(`${type}: ${message}`);
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', initialize);
+    </script>
+</body>
+</html>
