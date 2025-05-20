@@ -49,7 +49,8 @@ city-budget-query/
 ├── .env                   # API keys and settings
 └── README.md
 ```
-⚙️ Environment Configuration (.env)
+## ⚙️ Environment Configuration (.env)
+```
 Create a .env file in the project root:
 OPENAI_API_KEY=your-openai-key
 PINECONE_API_KEY=your-pinecone-key
@@ -60,17 +61,18 @@ CHUNK_OVERLAP=200
 EMBEDDING_MODEL=text-embedding-3-small
 LLM_MODEL=gpt-4-turbo-preview
 VECTOR_DB_INDEX=city-budgets
-
-🐳 Docker Setup
+```
+## 🐳 Docker Setup
+```
 docker-compose up --build
 
 API: http://localhost:8000
 
 Frontend: http://localhost:5000
 
-
-🔧 Local Development
-
+```
+## 🔧 Local Development
+```
 1. Set up Python environment
 python -m venv venv
 source venv/bin/activate
@@ -81,8 +83,9 @@ uvicorn api:app --reload --port 8000
 
 3. (Optional) Run the Flask web app
 python web/web_app.py
-
-🧠 Powered By
+```
+## 🧠 Powered By
+```
 OpenAI GPT-4 Turbo
 
 Pinecone / ChromaDB
@@ -96,6 +99,7 @@ FastAPI
 Flask
 
 Redis
-
-🙌 Acknowledgments
-This project was built to make city budgets more accessible, understandable, and transparent through the power of LLMs and open-source AI.
+```
+## 🙌 Acknowledgments
+```This project was built to make city budgets more accessible, understandable, and transparent through the power of LLMs and open-source AI.
+```
