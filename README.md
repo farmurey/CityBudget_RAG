@@ -48,7 +48,7 @@ city-budget-query/
 ├── requirements.txt       # Python dependencies
 ├── .env                   # API keys and settings
 └── README.md
-
+```
 ⚙️ Environment Configuration (.env)
 Create a .env file in the project root:
 OPENAI_API_KEY=your-openai-key
