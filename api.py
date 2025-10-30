@@ -23,7 +23,7 @@ config = Config()
 rag_system = CityBudgetRAG(config)
 current_document = None
 
-async def extract_metadata_with_ai(text_content: str, openai_api_key: str) -> tuple[str, str]:
+async def extract_metadata_with_ai(text_content: str, openai_api_key: str, model: str = "gpt-4o-mini") -> tuple[str, str]:
     from openai import OpenAI
     client = OpenAI(api_key=openai_api_key)
     sample_text = text_content[:3000]
@@ -38,7 +38,7 @@ City: [city name]
 Fiscal Year: [fiscal year]"""
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=model,
             messages=[
                 {"role": "system", "content": "You are an expert at extracting information from government documents."},
                 {"role": "user", "content": prompt}
@@ -122,7 +122,7 @@ async def ingest_document(file: UploadFile = File(...)):
     combined_text = "".join(content[i]['text'] + "\n" for i in range(min(5, len(content))) if content[i].get('text'))
 
     if hasattr(config, 'OPENAI_API_KEY') and config.OPENAI_API_KEY:
-        city_name, fiscal_year = await extract_metadata_with_ai(combined_text, config.OPENAI_API_KEY)
+        city_name, fiscal_year = await extract_metadata_with_ai(combined_text, config.OPENAI_API_KEY, config.METADATA_EXTRACTION_MODEL)
     if city_name == "Unknown" or fiscal_year == "Unknown":
         regex_city, regex_fy = extract_metadata_from_content(combined_text)
         if city_name == "Unknown" and regex_city != "Unknown":

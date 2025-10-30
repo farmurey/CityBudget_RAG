@@ -18,7 +18,8 @@ class Config:
     CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", 1000))
     CHUNK_OVERLAP = int(os.getenv("CHUNK_OVERLAP", 200))
     EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-3-small")
-    LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4-turbo-preview")
+    LLM_MODEL = os.getenv("LLM_MODEL", "gpt-4o-mini")  # Updated to o4-mini as cheaper alternative
+    METADATA_EXTRACTION_MODEL = os.getenv("METADATA_EXTRACTION_MODEL", "gpt-4o-mini")  # New config for metadata extraction
     VECTOR_DB_INDEX = os.getenv("VECTOR_DB_INDEX", "city-budgets")
     
     # Paths

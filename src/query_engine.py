@@ -9,11 +9,12 @@ from datetime import datetime
 logger = logging.getLogger(__name__)
 
 class QueryEngine:
-    def __init__(self, openai_api_key: str, vector_store, embedding_generator, redis_config: Optional[Dict] = None):
+    def __init__(self, openai_api_key: str, vector_store, embedding_generator, redis_config: Optional[Dict] = None, llm_model: str = "gpt-4o-mini"):
         self.llm_client = OpenAI(api_key=openai_api_key)
         self.vector_store = vector_store
         self.embedding_generator = embedding_generator
         self.redis_client = redis.Redis(**redis_config) if redis_config else None
+        self.llm_model = llm_model
 
     def answer_query(self, query: str, document_id: Optional[str] = None, use_cache: bool = True) -> Dict[str, Any]:
         """
@@ -77,6 +78,13 @@ class QueryEngine:
             f"[Source: Page {chunk['metadata']['page_number']}, {chunk['metadata']['file_name']}]\n{chunk['content']}"
             for chunk in chunks
         ])
+        if not chunks or len(context.strip()) == 0:
+            logger.warning("No relevant chunks found; returning explanatory fallback.")
+            return (
+        "The budget document does not include a specific section for this topic. "
+        "The information may appear in the detailed departmental budget rather than in the Budget in Brief."
+    )
+
         prompt = f"""You are analyzing city budget documents. Answer based ONLY on the provided context.
 
 Context:
@@ -85,16 +93,16 @@ Context:
 Question: {query}
 
 Instructions:
-1. Use only the context
-2. Cite page numbers/documents
-3. If unknown, say "I don't have enough information"
-4. Be precise
-5. Structure clearly
+1. Use only the context provided.
+2. Cite page numbers and document names where possible.
+3. If the document does not include the specific information requested, explain that it is not detailed in this document and, if relevant, mention where such information might typically appear (for example, in a department-level or detailed budget section).
+4. If you find partial information, summarize what is available instead of saying there is not enough information.
+5. Be clear, factual, and concise.
 
 Answer:"""
-        logger.info("Sending query to LLM for answer generation")
+        logger.info(f"Sending query to LLM for answer generation using model: {self.llm_model}")
         response = self.llm_client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model=self.llm_model,
             messages=[
                 {"role": "system", "content": "You are a municipal budget analyst."},
                 {"role": "user", "content": prompt}

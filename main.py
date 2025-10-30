@@ -51,7 +51,8 @@ class CityBudgetRAG:
                 openai_api_key=config.OPENAI_API_KEY,
                 vector_store=self.vector_store,
                 embedding_generator=self.embedding_generator,
-                redis_config=redis_config
+                redis_config=redis_config,
+                llm_model=config.LLM_MODEL
             )
             
             self.vector_store.reset_active_document_id()

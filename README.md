@@ -57,8 +57,9 @@ PINECONE_ENVIRONMENT=us-west1-gcp
 REDIS_HOST=localhost
 CHUNK_SIZE=1000
 CHUNK_OVERLAP=200
-EMBEDDING_MODEL=text-embedding-3-small
-LLM_MODEL=gpt-4-turbo-preview
+EMBEDDING_MODEL=text-embedding-3-small  # Options: text-embedding-3-small, text-embedding-3-large
+LLM_MODEL=gpt-4o-mini  # Options: gpt-4o-mini, gpt-4o, gpt-4-turbo
+METADATA_EXTRACTION_MODEL=gpt-4o-mini  # Options: gpt-4o-mini, gpt-4o
 VECTOR_DB_INDEX=city-budgets
 ```
 ## 🐳 Docker Setup

@@ -14,6 +14,11 @@ class ProductionConfig(Config):
     REDIS_HOST = os.environ.get('REDIS_HOST', 'redis-cluster')
     REDIS_PORT = int(os.environ.get('REDIS_PORT', 6379))
     
+    # Model settings
+    LLM_MODEL = os.environ.get('LLM_MODEL', 'gpt-4o-mini')
+    METADATA_EXTRACTION_MODEL = os.environ.get('METADATA_EXTRACTION_MODEL', 'gpt-4o-mini')
+    EMBEDDING_MODEL = os.environ.get('EMBEDDING_MODEL', 'text-embedding-3-small')
+    
     # Performance settings
     CHUNK_SIZE = 1500
     CHUNK_OVERLAP = 300
